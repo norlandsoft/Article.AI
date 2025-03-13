@@ -17,7 +17,7 @@ export default defineConfig({
   proxy: {
     // 平台API
     "/api": {
-      target: "http://localhost:7001",
+      target: "http://localhost:8089",
       changeOrigin: true,
       pathRewrite: {"^": ""},
       'onProxyRes': function (proxyRes, req, res) {

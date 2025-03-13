@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-      "start": "cross-env PORT=7000 max dev",
+      "start": "cross-env PORT=8088 max dev",
       "build": "max build"
     },
     "dependencies": {
