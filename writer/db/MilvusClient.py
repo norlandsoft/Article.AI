@@ -10,10 +10,11 @@ from pymilvus import (
   utility,
 )
 from pymilvus.client.types import LoadState
-from writer.utils.Log import Log
+
 
 import time
 import threading
+import logging
 
 
 class CollectionInfo:
@@ -47,7 +48,7 @@ class MilvusClient:
         self.connection_pool.append(alias_id)
 
       except Exception as e:
-        Log.error(f"Failed to connect to Milvus: {e}")
+        logging.error(f"Failed to connect to Milvus: {e}")
         time.sleep(1)
 
   def get_connection(self):
@@ -78,7 +79,7 @@ class MilvusClient:
         alias=conn_alias, host=self.host, port=self.port, db_name=self.db_name
       )
     except Exception as e:
-      Log.error(f"重新连接到 Milvus 失败: {e}")
+      logging.error(f"重新连接到 Milvus 失败: {e}")
       time.sleep(1)
 
   def execute_with_retry(self, func, *args, **kwargs):
@@ -86,7 +87,7 @@ class MilvusClient:
     try:
       return func(conn_alias, *args, **kwargs)
     except Exception as e:
-      Log.error(f"执行操作时发生错误: {e}")
+      logging.error(f"执行操作时发生错误: {e}")
       self.reconnect(conn_alias)
       # 重试一次
       return func(conn_alias, *args, **kwargs)
@@ -200,7 +201,7 @@ class MilvusClient:
       return info_list
     except Exception as e:
       self.reconnect(conn_alias)
-      Log.error(e)
+      logging.error(e)
       return []
     finally:
       self.release_connection(conn_alias)

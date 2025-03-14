@@ -3,9 +3,9 @@ import json
 import redis
 import threading
 import time
+import logging
 from redis.exceptions import ConnectionError, TimeoutError
 
-from writer.utils.Log import Log
 
 class RedisClient:
   _instance = None
@@ -77,9 +77,9 @@ class RedisClient:
       self.pool = redis.ConnectionPool(**pool_kwargs)
       self.connection = redis.Redis(connection_pool=self.pool)
       self.connection.ping()
-      Log.info("Redis 连接成功")
+      logging.info("Redis 连接成功")
     except Exception as e:
-      Log.error(f"Redis连接失败: {e}")
+      logging.error(f"Redis连接失败: {e}")
       raise
 
   def execute_with_retry(self, func, *args, **kwargs):
@@ -88,7 +88,7 @@ class RedisClient:
         return func(*args, **kwargs)
       except (ConnectionError, TimeoutError) as e:
         if attempt == self.max_retries - 1:
-          Log.error(f"操作失败，已重试{self.max_retries}次: {e}")
+          logging.error(f"操作失败，已重试{self.max_retries}次: {e}")
           raise
         time.sleep(self.retry_delay)
         self.connect()
@@ -99,7 +99,7 @@ class RedisClient:
       # 测试连接是否有效
       self.connection.ping()
     except (ConnectionError, TimeoutError):
-      Log.error("获取连接失败, 重新连接...")
+      logging.error("获取连接失败, 重新连接...")
       self.connect()
 
   def get(self, key):
@@ -113,7 +113,7 @@ class RedisClient:
         return value.decode('utf-8')
       return value
     except Exception as e:
-      Log.error(f"get key:{key} error - {e}")
+      logging.error(f"get key:{key} error - {e}")
       raise
 
   def set(self, key, value):
@@ -125,7 +125,7 @@ class RedisClient:
       value = str(value) if value is not None else ""
       return self.connection.set(key, value)
     except Exception as e:
-      Log.error(f"set key:{key} value:{value} error - {e}")
+      logging.error(f"set key:{key} value:{value} error - {e}")
       raise
 
   def set_with_expire(self, key, value, expire):
@@ -137,7 +137,7 @@ class RedisClient:
       value = str(value) if value is not None else ""
       return self.connection.setex(key, expire, value)
     except Exception as e:
-      Log.error(f"setex key:{key} value:{value} error - {e}")
+      logging.error(f"setex key:{key} value:{value} error - {e}")
       raise
 
   def delete(self, key):
@@ -167,7 +167,7 @@ class RedisClient:
       value = str(value) if value is not None else ""
       return self.connection.lpush(queue, value)
     except Exception as e:
-      Log.error(f"push queue:{queue} value:{value} error - {e}")
+      logging.error(f"push queue:{queue} value:{value} error - {e}")
       raise
 
   # rpop
@@ -181,7 +181,7 @@ class RedisClient:
         return value.decode('utf-8')
       return value
     except Exception as e:
-      Log.error(f"fetch queue:{key} error - {e}")
+      logging.error(f"fetch queue:{key} error - {e}")
       raise
 
   def disconnect(self):
