@@ -1,3 +1,10 @@
 # web server
 fastapi
 uvicorn
+
+# database
+pymysql
+pymysql-pooling
+DBUtils
+pymilvus
+redis
